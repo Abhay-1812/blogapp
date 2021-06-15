@@ -32,6 +32,7 @@ class User(UserMixin , db.Model):
         'PostLike',
         foreign_keys='PostLike.user_id',
         backref='user', lazy='dynamic')
+    comment = db.relationship('Comment', lazy='dynamic', foreign_keys='Comment.author', backref='authorc')
 
     def like_post(self, post):
         if not self.has_liked_post(post):
@@ -47,7 +48,11 @@ class User(UserMixin , db.Model):
     def has_liked_post(self, post):
         return PostLike.query.filter(
             PostLike.user_id == self.id,
-            PostLike.post_id == post.id).count() > 0    
+            PostLike.post_id == post.id).count() > 0 
+    def has_commented(self,comment):
+        return Comment.query.filter(
+            Comment.author==self.id,
+            ).count() > 0           
     def __repr__(self):
         return '<User {}>'.format(self.username)  
     def set_password(self, password):

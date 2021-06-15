@@ -19,7 +19,8 @@ from app.forms import ResetPasswordRequestForm
 from app.email import send_password_reset_email
 from app.forms import ResetPasswordForm
 from app.forms import AddCommentForm
-from guess_language import guess_language
+from app.forms import UpdateCommentForm,UpdatePostForm
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -159,6 +160,19 @@ def index():
 		if posts.has_prev else None	
 	return render_template('index.html',title='Home Page',form=form,posts=posts.items,next_url=next_url,prev_url=prev_url)	
 
+@app.route('/post/<int:post_id>/update',methods=['GET','POST'])
+@login_required
+def update_post(post_id):
+	post = Post.query.filter_by(id=post_id).first_or_404()
+	form=UpdatePostForm()
+	if form.validate_on_submit():
+		post.body=form.post.data
+		db.session.commit()
+		flash("Your post has been UPDATED", "success")
+		return redirect(url_for('explore'))
+	return render_template('update_post.html',title='update post',form=form,post_id=post_id)	
+
+
 
 @app.route('/explore')
 @login_required
@@ -170,6 +184,7 @@ def explore():
 	prev_url = url_for('index', page=posts.prev_num) \
 		if posts.has_prev else None	
 	return render_template('index.html',title='Explore', posts=posts.items,next_url=next_url,prev_url=prev_url)
+
 
 
 @app.route('/reset_password_request', methods=['GET', 'POST'])
@@ -212,6 +227,39 @@ def like_action(post_id, action):
         current_user.unlike_post(post)
         db.session.commit()
     return redirect(request.referrer)
+
+
+@app.route('/delete/<int:comment_id>')
+@login_required
+def delete_comment(comment_id):
+	comment= Comment.query.filter_by(id=comment_id).first_or_404()  
+	db.session.delete(comment)
+	db.session.commit()
+	return redirect(request.referrer)
+
+@app.route('/post/<int:post_id>/delete')
+@login_required
+def delete_post(post_id):
+	comments=Comment.query.filter_by(post_id=post_id).all()
+	post=Post.query.filter_by(id=post_id).first_or_404()
+	for comment in comments:
+		db.session.delete(comment)
+	db.session.delete(post)
+	db.session.commit()
+	return redirect(request.referrer)
+
+@app.route('/update/<int:comment_id>',methods=["GET", "POST"])
+@login_required
+def update_comment(comment_id):
+	comment = Comment.query.filter_by(id=comment_id).first_or_404()
+	form = UpdateCommentForm()
+	if form.validate_on_submit():
+		comment.body = form.body.data
+		db.session.commit()
+		flash("Your comment has been UPDATED", "success")
+		return redirect(url_for('explore'))
+	return render_template("update_comment.html",title="update comment",form=form,comment_id=comment_id)	
+
 
 
 @app.route('/post/<int:post_id>/comment', methods=["GET", "POST"])

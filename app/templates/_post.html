@@ -10,6 +10,11 @@
 				{{post.author.username}}
 			</a>
 			says:<br>{{ post.body}}
+			<br>
+			{% if current_user==post.author %}
+				<a href="{{ url_for('update_post', post_id=post.id) }}">UPDATE POST</a>
+				<a href="{{ url_for('delete_post', post_id=post.id) }}">DELETE</a>
+			{%endif%}
 		</td>
 		<td scope="col">
 			{% if current_user.has_liked_post(post) %}
@@ -28,10 +33,17 @@
 			{% for comment in post.get_comments(post) %}
 		
 			<p>{{comment.body}}</p>
-			<p>{{comment.author}}</p>
+			<p>{{comment.author.username}}</p>
+			{%if current_user==comment.authorc %}
 		
-		{% endfor %}
+			<a href="{{ url_for('delete_comment', comment_id=comment.id) }}">DELETE</a>
+			<a href="{{ url_for('update_comment', comment_id=comment.id) }}">UPDATE</a>
+			{% endif %}
+		
+			{% endfor %}
 		</td>	
 	</tr>
+
+
 
 </table>	

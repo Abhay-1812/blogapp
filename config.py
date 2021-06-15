@@ -3,8 +3,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-    'sqlite:///' + os.path.join(basedir, 'app.db')
+    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+    # 'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_DATABASE_URI='mysql+pymysql://root:Iphone6s@localhost:3306/app'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     POSTS_PER_PAGE = 10
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
